@@ -1,0 +1,226 @@
+Drop Database if exists Airline_Reservation_System;
+Create Database Airline_Reservation_System;
+Use Airline_Reservation_System;
+
+Drop table if exists Inventory;
+Drop table if exists Booking_Seats;
+Drop table if exists Bookings;
+Drop table if exists Customers;
+Drop table if exists Flights;
+
+-- Flight Details Table
+Create Table Flights(
+FlightID INT Primary Key AUTO_INCREMENT,
+FlightNumber VARCHAR(20) UNIQUE Not Null,
+Origin VARCHAR(50) Not Null,
+Destination VARCHAR(50) Not Null,
+DepartureTime DATETIME Not Null,
+ArrivalTime DATETIME Not Null,
+AircraftType VARCHAR(50)
+);
+
+-- Customer Details Table
+Create table Customers(
+CustomerID INT Primary key AUTO_INCREMENT,
+FirstName VARCHAR(50),
+LastName VARCHAR(50),
+Email VARCHAR(100) UNIQUE,
+Phone VARCHAR(20)
+);
+
+-- Bookings Table
+Create Table Bookings(
+BookingID INT PRIMARY Key AUTO_INCREMENT,
+CustomerID INT,
+FlightID INT,
+BookingDate DATETIME DEFAULT Current_Timestamp,
+Status  ENUM('CONFIRMED','CANCELLED') DEFAULT 'CONFIRMED',
+FOREIGN KEY (CustomerID) References Customers(CustomerID),
+FOREIGN KEY (FlightID) References Flights(FlightID)
+);
+
+-- Inventory (Seats Availability)
+Create table Inventory(
+InventoryID INT PRIMARY KEY AUTO_INCREMENT,
+FlightID INT,
+SeatClass ENUM('ECONOMY','BUSINESS','FIRST'),
+TotalSeats INT,
+AvailableSeats INT,
+FOREIGN KEY (FlightID) References Flights(FlightID)
+);
+
+-- Booking Seats( Seat Details)
+Create Table Booking_Seats(
+SeatID INT PRIMARY KEY AUTO_INCREMENT,
+BookingID INT,
+SeatNumber VARCHAR(10),
+SeatClass ENUM('ECONOMY','BUSINESS','FIRST'),
+FOREIGN KEY (BookingID) References Bookings(BookingID)
+);
+
+INSERT INTO Flights (FlightNumber, Origin, Destination, DepartureTime, ArrivalTime, AircraftType) Values
+('AI101', 'Mumbai', 'Delhi', '2025-03-20 12:00', '2025-03-20 14:00', 'Airbus A320'),
+('AI202','Mumbai','Bangalore','2025-08-21 14:30','2025-08-21 16:00','Boeing 737'),
+('AI303','Delhi','Kolkata','2025-08-22 06:45','2025-08-22 09:15','Airbus A321'),
+('AI404','Chennai','Hyderabad','2025-08-23 18:00','2025-08-23 19:15','ATR 72'),
+('AI505','Bangalore','Delhi','2025-08-24 07:00','2025-08-24 09:30','Boeing 787'),
+('AI606','Kolkata','Mumbai','2025-08-25 12:15','2025-08-25 14:45','Airbus A320'),
+('AI707','Hyderabad','Chennai','2025-08-26 15:30','2025-08-26 16:45','Boeing 737'),
+('AI808','Delhi','Dubai','2025-08-27 22:00','2025-08-28 01:30','Boeing 777'),
+('AI909','Mumbai','Singapore','2025-08-28 23:55','2025-08-29 07:30','Airbus A350'),
+('AI1001','Bangalore','London','2025-08-29 10:00','2025-08-29 19:30','Boeing 787 Dreamliner'),
+('AI2002','Delhi','Mumbai','2025-08-20 09:00','2025-08-20 11:00','Airbus A320');
+
+SELECT * FROM Flights;
+
+INSERT INTO Customers (FirstName, LastName, Email, Phone) Values
+('Aditi','Sinha','adi67@example.com','9876543210'),
+('Rahul','Verma','rahul.verma@example.com','9123456789'),
+('Priya','Sharma','psharma@example.com','9765432109'),
+('Ankit','Mehra','ankit11mehra@example.com','9811122233'),
+('Sneha','Kapoor','sneha.kapoor@example.com','9998887776'),
+('Vikas','Gupta','vikas.gupta@example.com','9090909090'),
+('Neha','Rao','neha.rao@example.com','9123987654'),
+('Karan','Malhotra','k.malhotra@example.com','9345678901'),
+('Pooja','Patel','pooja.patel@example.com','9456123789'),
+('Rohit','Singh','rohit12@example.com','9567123456'),
+('Dhruv', 'Singh', 'drv67@example.com', '7483927274');
+
+SELECT * FROM Customers;
+
+-- Inventory for Flight AI101 (Delhi → Mumbai)
+INSERT INTO Inventory (FlightID, SeatClass, TotalSeats, AvailableSeats)
+VALUES
+(1, 'ECONOMY', 120, 120),
+(1, 'BUSINESS', 40, 40),
+(1, 'FIRST', 10, 10);
+
+-- Inventory for Flight AI202 (Mumbai → Bangalore)
+INSERT INTO Inventory (FlightID, SeatClass, TotalSeats, AvailableSeats)
+VALUES
+(2, 'ECONOMY', 100, 95),
+(2, 'BUSINESS', 30, 28),
+(2, 'FIRST', 5, 5);
+
+-- Inventory for Flight AI303 (Delhi → Kolkata)
+INSERT INTO Inventory (FlightID, SeatClass, TotalSeats, AvailableSeats)
+VALUES
+(3, 'ECONOMY', 110, 100),
+(3, 'BUSINESS', 25, 25),
+(3, 'FIRST', 8, 8);
+
+-- Inventory for Flight AI505 (Bangalore → Delhi)
+INSERT INTO Inventory (FlightID, SeatClass, TotalSeats, AvailableSeats)
+VALUES
+(5, 'ECONOMY', 150, 145),
+(5, 'BUSINESS', 40, 40),
+(5, 'FIRST', 12, 12);
+
+-- Inventory for Flight AI808 (Delhi → Dubai)
+INSERT INTO Inventory (FlightID, SeatClass, TotalSeats, AvailableSeats)
+VALUES
+(8, 'ECONOMY', 200, 198),
+(8, 'BUSINESS', 50, 49),
+(8, 'FIRST', 20, 20);
+
+-- Truncate Table Inventory;
+SELECT * FROM Inventory;
+Describe Inventory;
+
+-- Booking 1: Aditi Sinha books AI101 (Delhi → Mumbai)
+INSERT INTO Bookings (CustomerID, FlightID, Status)
+VALUES (1, 1, 'CONFIRMED');
+
+-- Booking 2: Rahul Verma books AI202 (Mumbai → Bangalore)
+INSERT INTO Bookings (CustomerID, FlightID, Status)
+VALUES (2, 2, 'CONFIRMED');
+
+-- Booking 3: Priya Sharma books AI303 (Delhi → Kolkata)
+INSERT INTO Bookings (CustomerID, FlightID, Status)
+VALUES (3, 3, 'CONFIRMED');
+
+-- Booking 4: Ankit Mehra books AI505 (Bangalore → Delhi) but later cancelled
+INSERT INTO Bookings (CustomerID, FlightID, Status)
+VALUES (4, 5, 'CANCELLED');
+
+-- Booking 5: Sneha Kapoor books AI808 (Delhi → Dubai)
+INSERT INTO Bookings (CustomerID, FlightID, Status)
+VALUES (5, 8, 'CONFIRMED');
+
+SELECT * FROM Bookings;
+
+-- Booking_Seat 1: Aditi Sinha assigned seat in Economy on AI101
+INSERT INTO Booking_Seats (BookingID, SeatNumber, SeatClass)
+VALUES (1, '12A', 'ECONOMY');
+
+-- Booking_Seat 2: Rahul Verma assigned Business seat on AI202
+INSERT INTO Booking_Seats (BookingID, SeatNumber, SeatClass)
+VALUES (2, '3C', 'BUSINESS');
+
+-- Booking_Seat 3: Priya Sharma assigned Economy seat on AI303
+INSERT INTO Booking_Seats (BookingID, SeatNumber, SeatClass)
+VALUES (3, '14B', 'ECONOMY');
+
+-- Booking_Seat 4: Ankit Mehra had a seat but booking cancelled
+INSERT INTO Booking_Seats (BookingID, SeatNumber, SeatClass)
+VALUES (4, '7D', 'ECONOMY');
+
+-- Booking_Seat 5: Sneha Kapoor assigned First Class seat on AI808
+INSERT INTO Booking_Seats (BookingID, SeatNumber, SeatClass)
+VALUES (5, '1A', 'FIRST');
+
+-- Truncate Booking_Seats;
+SELECT * FROM Booking_Seats;
+
+-- Search filghts
+SELECT * FROM Flights
+WHERE ORIGIN = 'Delhi' AND DESTINATION = 'Mumbai';
+
+-- Check Available Seats
+SELECT f.FlightNumber, i.SeatClass, i.AvailableSeats
+FROM Flights f
+JOIN Inventory i ON f.FlightID = i.FlightID
+WHERE f.FlightNumber = 'AI101';
+
+-- Booking Summary Report
+SELECT b.BookingID, c.FirstName, c.LastName, f.FlightNumber, b.Status, b.BookingDate
+FROM Bookings b
+JOIN Customers c ON b.CustomerID=c.CustomerID
+JOIN Flights f ON b.FlightID= f.FlightID;
+
+-- Triggers
+-- On Booking → Reduce available seats
+DELIMITER $$
+
+Create Trigger after_booking_insert
+After Insert On Bookings
+For Each Row
+BEGIN
+  Update Inventory
+  Set AvailableSeats = AvailableSeats - 1
+  Where FlightID = New.FlightID AND SeatClass = 'ECONOMY';
+END$$
+
+DELIMITER ;
+
+-- On Cancellation → Restore available seats
+
+DELIMITER $$
+Create Trigger after_booking_cancel
+After Update On Bookings
+For Each row
+
+BEGIN
+
+  If New.Status = 'CANCELLED' Then
+  Update Inventory
+  Set AvailableSeats = AvailableSeats + 1
+  Where FlightID = New.FlightID AND SeatClass = 'ECONOMY';
+  
+  End If;
+  
+END$$
+
+DELIMITER ;
+
+Show triggers;
